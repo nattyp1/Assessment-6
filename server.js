@@ -4,15 +4,33 @@ const app = express()
 const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
 
+app.use(express.static("public"));
+
+app.get("/styles", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/index.css"));
+  });
+  app.get("/js", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/index.js"));
+  });
+
 app.use(express.json())
 
-app.get('/', function(req, res){
-    res.sendFile(path.join(__dirname, '/public/index.html'))
+
+
+// include and initialize the rollbar library with your access token
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+  accessToken: '9b52fd9668ae44ef838939c91eeee73e',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
 })
 
+// record a generic message and send it to Rollbar
+// rollbar.log('Hello world!')
 
 app.get('/api/robots', (req, res) => {
     try {
+        // rollbar.info('someone tapped the api')
         res.status(200).send(botsArr)
     } catch (error) {
         console.log('ERROR GETTING BOTS', error)
@@ -22,6 +40,7 @@ app.get('/api/robots', (req, res) => {
 
 app.get('/api/robots/five', (req, res) => {
     try {
+        // rollbar.info('Stop chasing me')
         let shuffled = shuffleArray(bots)
         let choices = shuffled.slice(0, 5)
         let compDuo = shuffled.slice(6, 8)
